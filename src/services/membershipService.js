@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const API_URL = configuredApiUrl || 'https://asmmr.org/api'
 
 export async function submitMembership(payload) {
   const body = new FormData();
@@ -7,7 +8,8 @@ export async function submitMembership(payload) {
     else body.append(key, value);
   });
   const response = await fetch(`${API_URL}/memberships`, { method:'POST', body });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.message || 'Submission failed');
+  const contentType = response.headers.get('content-type') || '';
+  const data = contentType.includes('application/json') ? await response.json() : null;
+  if (!response.ok) throw new Error(data?.message || `Submission failed (${response.status})`);
   return data;
 }
