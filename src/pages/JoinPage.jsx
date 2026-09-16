@@ -18,11 +18,29 @@ function UploadField({ label, name, accept, file, icon: Icon, hint, error, onCha
 export default function JoinPage() {
   const [form,setForm]=useState(initial); const [errors,setErrors]=useState({}); const [status,setStatus]=useState('idle'); const [submitError,setSubmitError]=useState('');
   const completion=useMemo(()=>Math.round(Object.entries(form).filter(([,v])=>Array.isArray(v)?v.length:v).length/14*100),[form]);
-  const change=e=>setForm(v=>({...v,[e.target.name]:e.target.value}));
-  const toggleInterest=value=>setForm(v=>({...v,interests:v.interests.includes(value)?v.interests.filter(x=>x!==value):[...v.interests,value]}));
+  const change=e=>{const {name,value}=e.target;setForm(v=>({...v,[name]:value}));setErrors(v=>({...v,[name]:undefined}));};
+  const toggleInterest=value=>{setForm(v=>({...v,interests:v.interests.includes(value)?v.interests.filter(x=>x!==value):[...v.interests,value]}));setErrors(v=>({...v,interests:undefined}));};
   const selectFile=(name,file)=>{if(!file)return;setForm(v=>({...v,[name]:file}));setErrors(v=>({...v,[name]:undefined}));};
   const validate=()=>{const next={}; ['fullName','designation','institution','country','nationality','dateOfBirth','gender','email','phone','address','contribution','profilePicture','cv'].forEach(k=>{if(!form[k]) next[k]='This field is required.'}); if(!/^\S+@\S+\.\S+$/.test(form.email)) next.email='Enter a valid email address.'; if(!form.interests.length) next.interests='Choose at least one area.'; if(form.profilePicture&&!['image/jpeg','image/png','image/webp'].includes(form.profilePicture.type))next.profilePicture='Use a JPG, PNG, or WebP image.';if(form.profilePicture?.size>5*1024*1024)next.profilePicture='Image must be 5 MB or smaller.';if(form.cv&&form.cv.type!=='application/pdf')next.cv='CV must be a PDF file.';if(form.cv?.size>10*1024*1024)next.cv='PDF must be 10 MB or smaller.'; return next;};
-  const submit=async e=>{e.preventDefault(); const next=validate(); setErrors(next); if(Object.keys(next).length){document.querySelector('.field--error')?.scrollIntoView({behavior:'smooth',block:'center'}); return;} setStatus('loading'); setSubmitError(''); try{await submitMembership(form);setStatus('success');window.scrollTo({top:0,behavior:'smooth'});}catch(error){setSubmitError(error.message||'We couldn’t submit your application. Please try again.');setStatus('error');}};
+  const submit=async e=>{
+    e.preventDefault();
+    const next=validate();
+    setErrors(next);
+    if(Object.keys(next).length){document.querySelector('.field--error, .choice-error')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
+    setStatus('loading');
+    setSubmitError('');
+    try{
+      await submitMembership(form);
+      setStatus('success');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(error){
+      const fieldErrors=Object.fromEntries(Object.entries(error.errors||{}).filter(([key])=>Object.hasOwn(initial,key)));
+      setErrors(fieldErrors);
+      setSubmitError(error.message||'We couldn’t submit your application. Please try again.');
+      setStatus('error');
+      if(Object.keys(fieldErrors).length)requestAnimationFrame(()=>document.querySelector('.field--error, .choice-error')?.scrollIntoView({behavior:'smooth',block:'center'}));
+    }
+  };
   if(status==='success') return <><Header light/><main className="success-page"><div className="success-card"><div className="success-icon"><Check/></div><p className="eyebrow eyebrow--blue">Application received</p><h1>Welcome to the community.</h1><p>Thank you, {form.fullName}. We’ll review your membership application and contact you at {form.email}.</p><Link className="button" to="/">Return home <ArrowRight size={18}/></Link></div></main></>;
   return <div className="join-page"><Header light/><main className="join-layout container"><Link to="/" className="page-back-link"><ArrowLeft size={17}/> Back to home</Link><section className="form-card">
     <div className="form-panel"><div className="form-heading"><span>Membership application</span><h2>Tell us about yourself</h2><p>Complete the details below to join the ASMMR community. Fields marked with an asterisk are required.</p></div><div className="form-overview"><div className="benefit-list"><div><Users/><span><strong>A worldwide network</strong>Connect across disciplines and borders.</span></div><div><GraduationCap/><span><strong>Grow your research</strong>Discover insights and opportunities.</span></div><div><Sparkles/><span><strong>Create real impact</strong>Contribute to a better tomorrow.</span></div></div><div className="form-progress"><span><strong>{completion}%</strong> complete</span><div><i style={{width:`${completion}%`}}/></div></div></div><form onSubmit={submit} noValidate>
