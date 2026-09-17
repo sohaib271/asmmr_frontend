@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { ChevronDown, Menu, Search, X } from 'lucide-react';
 
-const links = ['Home', 'About', 'Research'];
+const links = ['Home', 'About'];
 
 export default function Header({ light = false }) {
   const [open, setOpen] = useState(false);
@@ -49,7 +49,27 @@ export default function Header({ light = false }) {
               <Link to="/training/seminars" onClick={() => { setOpen(false); setTrainingOpen(false); }}>Seminars &amp; Webinars</Link>
             </div>
           </div>
-          <a href="/#opportunities" onClick={() => setOpen(false)}>Opportunities</a>
+          <div className={`nav-dropdown ${membershipOpen ? 'is-expanded' : ''}`}>
+            <button type="button" className="nav-dropdown-trigger" aria-label="Membership pages" aria-haspopup="true" aria-expanded={membershipOpen} onClick={() => setMembershipOpen(value => !value)}>
+              Publications <ChevronDown size={15} />
+            </button>
+            <div className="nav-dropdown-menu">
+              <Link to="/publications/journal" onClick={() => { setOpen(false); setMembershipOpen(false); }}>Journal</Link>
+              <Link to="/publications/case-studies" onClick={() => { setOpen(false); setMembershipOpen(false); }}>Case Studies</Link>
+            </div>
+          </div>
+          <div className={`nav-dropdown ${conferencesOpen ? 'is-expanded' : ''}`}>
+            <button type="button" className="nav-dropdown-trigger" aria-label="Conferences and Events pages" aria-haspopup="true" aria-expanded={conferencesOpen} onClick={() => setConferencesOpen(value => !value)}>
+              Resources
+            </button>
+            <div className="nav-dropdown-menu">
+              <Link to="/resources/funding" onClick={() => { setOpen(false); setConferencesOpen(false); }}>Funding & Grants</Link>
+              <Link to="/resources/fellowship" onClick={() => { setOpen(false); setConferencesOpen(false); }}>Fellowships</Link>
+              <Link to="/resourcesces/scholarship" onClick={() => { setOpen(false); setConferencesOpen(false); }}>Scholarships</Link>
+              <Link to="/resourcesces/survey" onClick={() => { setOpen(false); setConferencesOpen(false); }}>Survey Form</Link>
+            </div>
+          </div>
+          <a href="/#contact" onClick={() => setOpen(false)}>Contact</a>
           <button className="icon-button nav-search" aria-label="Search"><Search size={18} /></button>
           <Link className="button button--small" to="/join" onClick={() => setOpen(false)}>Join now</Link>
         </nav>
