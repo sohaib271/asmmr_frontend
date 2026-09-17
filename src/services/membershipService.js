@@ -1,5 +1,18 @@
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
-const API_URL = configuredApiUrl
+const API_URL = (configuredApiUrl || 'http://localhost:5000/api').replace(/\/$/, '');
+
+export async function getMembers({ signal } = {}) {
+  const response = await fetch(`${API_URL}/memberships`, { signal });
+  if (!response.ok) throw new Error('The member directory could not be loaded. Please try again.');
+  const result = await response.json();
+  return Array.isArray(result.data) ? result.data : [];
+}
+
+export function memberPhotoUrl(path) {
+  if (!path) return '';
+  const apiOrigin = 'http://asmmr.org'
+  return new URL(path.replace(/^\/+/, ''), `${apiOrigin}/`).href;
+}
 export class SubmissionError extends Error {
   constructor(message, status, errors = {}) {
     super(message);
