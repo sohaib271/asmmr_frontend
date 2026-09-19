@@ -42,7 +42,7 @@ export default function Header({ light = false }) {
           </div>
           <div className={`nav-dropdown ${openDropdown === 'conferences' ? 'is-expanded' : ''}`}>
             <button type="button" className="nav-dropdown-trigger" aria-label="Conferences and Events pages" aria-haspopup="true" aria-expanded={openDropdown === 'conferences'} onClick={() => toggleDropdown('conferences')}>
-              Conferences &amp; Events <ChevronDown size={15} />
+              Conferences <ChevronDown size={15} />
             </button>
             <div className="nav-dropdown-menu">
               <Link to="/conferences/upcoming" onClick={closeNavigation}>Upcoming Conferences</Link>
@@ -61,7 +61,7 @@ export default function Header({ light = false }) {
           </div>
           <div className={`nav-dropdown ${openDropdown === 'training' ? 'is-expanded' : ''}`}>
             <button type="button" className="nav-dropdown-trigger" aria-label="Training and Development pages" aria-haspopup="true" aria-expanded={openDropdown === 'training'} onClick={() => toggleDropdown('training')}>
-              Training &amp; Development <ChevronDown size={15} />
+              Training <ChevronDown size={15} />
             </button>
             <div className="nav-dropdown-menu">
               <Link to="/training/workshops" onClick={closeNavigation}>Workshops &amp; Trainings</Link>
