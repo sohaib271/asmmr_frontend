@@ -1,5 +1,5 @@
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
-const API_URL = (configuredApiUrl || 'http://localhost:5000/api').replace(/\/$/, '');
+const API_URL = (configuredApiUrl || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api')).replace(/\/$/, '');
 
 export async function getMembers({ signal } = {}) {
   const response = await fetch(`${API_URL}/memberships`, { signal, credentials: 'include' });
@@ -10,7 +10,7 @@ export async function getMembers({ signal } = {}) {
 
 export function memberPhotoUrl(path) {
   if (!path) return '';
-  const apiOrigin = 'http://asmmr.org'
+  const apiOrigin = new URL(API_URL, window.location.origin).origin;
   return new URL(path.replace(/^\/+/, ''), `${apiOrigin}/`).href;
 }
 export class SubmissionError extends Error {

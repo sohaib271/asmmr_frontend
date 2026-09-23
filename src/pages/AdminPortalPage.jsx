@@ -42,7 +42,11 @@ export default function AdminPortalPage() {
   };
   const doLogout = async () => { await logout(); navigate('/'); };
   const items = tab === 'memberships' ? data.memberships : data.publications;
-  const fileUrl = path => path ? new URL(path.replace(/^\/+/, ''), `${new URL(API_URL).origin}/`).href : '';
+  const fileUrl = path => {
+    if (!path) return '';
+    const apiOrigin = new URL(API_URL, window.location.origin).origin;
+    return new URL(path.replace(/^\/+/, ''), `${apiOrigin}/`).href;
+  };
 
   return <div className="portal-page admin-page"><Header light/><main className="portal-shell"><header className="portal-welcome"><div><p className="eyebrow eyebrow--blue">Administration</p><h1>Review dashboard</h1><p>Signed in as {user.email}</p></div><button className="portal-logout" onClick={doLogout}><LogOut/> Sign out</button></header>
     <section className="portal-summary"><article><ShieldCheck/><div><span>Pending memberships</span><strong>{data.memberships.filter(x => ['pending','reviewing'].includes(x.status)).length}</strong></div></article><article><FileCheck2/><div><span>Pending publications</span><strong>{data.publications.filter(x => ['pending','under-review'].includes(x.status)).length}</strong></div></article><article><Users/><div><span>Approved members</span><strong>{data.memberships.filter(x => x.status === 'approved').length}</strong></div></article></section>
