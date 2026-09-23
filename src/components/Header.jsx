@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { ChevronDown, Menu, Search, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const links = ['Home'];
 
 export default function Header({ light = false }) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
 
@@ -90,7 +92,7 @@ export default function Header({ light = false }) {
           </div>
           <a href="/#contact" onClick={closeNavigation}>Contact</a>
           <button className="icon-button nav-search" aria-label="Search"><Search size={18} /></button>
-          <Link className="button button--small" to="/join" onClick={closeNavigation}>Join now</Link>
+          <Link className="button button--small" to={user ? (user.role === 'admin' ? '/admin' : '/portal') : '/auth'} onClick={closeNavigation}>{user ? (user.role === 'admin' ? 'Admin' : 'My portal') : 'Sign in'}</Link>
         </nav>
         <button className="icon-button menu-button" onClick={() => { setOpen(!open); setOpenDropdown(null); }} aria-label="Toggle menu" aria-expanded={open}>
           {open ? <X /> : <Menu />}

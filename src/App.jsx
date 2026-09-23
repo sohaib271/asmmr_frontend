@@ -7,12 +7,19 @@ import WorkshopsPage from './pages/WorkshopsPage';
 import SeminarsPage from './pages/SeminarsPage';
 import PreviousConferencesPage from './pages/PreviousConferencesPage';
 import ConferencePlaceholderPage from './pages/ConferencePlaceholderPage';
+import AuthPage from './pages/AuthPage';
+import PortalPage from './pages/PortalPage';
+import AdminPortalPage from './pages/AdminPortalPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/join" element={<JoinPage />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/join" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
+      <Route path="/portal" element={<ProtectedRoute><PortalPage /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute admin><AdminPortalPage /></ProtectedRoute>} />
       <Route path="/membership/network" element={<MembershipNetworkPage />} />
       <Route path="/membership/benefits" element={<MembershipBenefitsPage />} />
       <Route path="/training/workshops" element={<WorkshopsPage />} />
