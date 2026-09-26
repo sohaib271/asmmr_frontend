@@ -10,6 +10,7 @@ import ConferencePlaceholderPage from './pages/ConferencePlaceholderPage';
 import AuthPage from './pages/AuthPage';
 import PortalPage from './pages/PortalPage';
 import AdminPortalPage from './pages/AdminPortalPage';
+import ReviewerPortalPage from './pages/ReviewerPortalPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
       <Route path="/join" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
       <Route path="/portal" element={<ProtectedRoute><PortalPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute admin><AdminPortalPage /></ProtectedRoute>} />
+      <Route path="/reviewer" element={<ProtectedRoute reviewer><ReviewerPortalPage /></ProtectedRoute>} />
       <Route path="/membership/network" element={<MembershipNetworkPage />} />
       <Route path="/membership/benefits" element={<MembershipBenefitsPage />} />
       <Route path="/training/workshops" element={<WorkshopsPage />} />

@@ -5,12 +5,12 @@ import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
 import { API_URL, api } from '../services/api';
 
-const statusOptions = { membership: ['reviewing', 'approved', 'rejected'], publication: ['under-review', 'published', 'rejected'] };
+const statusOptions = { membership: ['reviewing', 'approved', 'rejected'] };
 
 export default function AdminPortalPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [data, setData] = useState({ memberships: [], publications: [] });
+  const [data, setData] = useState({ memberships: [], publications: [], reviewers: [] });
   const [tab, setTab] = useState('memberships');
   const [error, setError] = useState('');
   const [reviewTarget, setReviewTarget] = useState(null);
@@ -48,6 +48,8 @@ export default function AdminPortalPage() {
     finally { setSaving(false); }
   };
   const doLogout = async () => { await logout(); navigate('/'); };
+  const toggleReviewer = async item => { try { await api(`/admin/memberships/${item._id}/reviewer`, { method: 'PATCH', body: JSON.stringify({ enabled: item.user?.role !== 'reviewer' }) }); await load(); } catch (issue) { setError(issue.message); } };
+  const assignReviewer = async (item, reviewerId) => { if (!reviewerId) return; try { await api(`/admin/publications/${item._id}/assign`, { method: 'PATCH', body: JSON.stringify({ reviewerId }) }); await load(); } catch (issue) { setError(issue.message); } };
   const items = tab === 'memberships' ? data.memberships : data.publications;
   const fileUrl = path => {
     if (!path) return '';
@@ -63,7 +65,7 @@ export default function AdminPortalPage() {
     <section className="admin-list">{items.map(item => <article key={item._id}>
       {tab === 'memberships' && <button className="admin-member-photo" onClick={() => showMemberImage(item)} aria-label={`View a larger photo of ${item.fullName}`}><img src={fileUrl(item.profilePicture)} alt={item.fullName}/><span><Maximize2/></span></button>}
       <div className="admin-item-copy"><span>{tab === 'memberships' ? item.user?.email || item.email : `${item.type} · ${item.user?.email || 'Unknown user'}`}</span><h2>{tab === 'memberships' ? item.fullName : item.title}</h2><p>{tab === 'memberships' ? `${item.designation} · ${item.institution} · ${item.country}` : item.abstract}</p>{item.reviewReason && <p className="submission-reason">Current note: {item.reviewReason}</p>}</div>
-      <div className="admin-actions"><strong className={`status-pill status-${item.status}`}>{item.status}</strong>{tab === 'memberships' && <button className="admin-view-details" onClick={() => setSelectedMember(item)}><Eye/> View details</button>}{tab === 'publications' && item.manuscriptUrl && <a className="admin-document-link" href={item.manuscriptUrl} target="_blank" rel="noreferrer">Open manuscript</a>}{statusOptions[tab === 'memberships' ? 'membership' : 'publication'].map(status => <button key={status} disabled={item.status === status} onClick={() => openReview(tab === 'memberships' ? 'membership' : 'publication', item, status)}>{status.replace('-', ' ')}</button>)}</div>
+      <div className="admin-actions"><strong className={`status-pill status-${item.status}`}>{item.status}</strong>{tab === 'memberships' && <button className="admin-view-details" onClick={() => setSelectedMember(item)}><Eye/> View details</button>}{tab === 'memberships' && item.status === 'approved' && <button onClick={() => toggleReviewer(item)}>{item.user?.role === 'reviewer' ? 'Remove reviewer role' : 'Make reviewer'}</button>}{tab === 'publications' && <a className="admin-document-link" href={`${API_URL}/publications/${item._id}/manuscript`} target="_blank" rel="noreferrer">Open PDF</a>}{tab === 'publications' && <select className="reviewer-select" value={item.assignedReviewer?._id || ''} onChange={event => assignReviewer(item, event.target.value)}><option value="">Assign reviewer…</option>{data.reviewers.map(reviewer => <option key={reviewer._id} value={reviewer._id}>{reviewer.name} ({reviewer.email})</option>)}</select>}{tab === 'memberships' && statusOptions.membership.map(status => <button key={status} disabled={item.status === status} onClick={() => openReview('membership', item, status)}>{status.replace('-', ' ')}</button>)}</div>
     </article>)}{!items.length && <div className="portal-empty"><h3>Nothing to review</h3></div>}</section>
   </main>
   {selectedMember && <div className="review-modal-backdrop" onMouseDown={event => event.target === event.currentTarget && setSelectedMember(null)}><section className="member-detail-modal" role="dialog" aria-modal="true" aria-labelledby="member-detail-title"><button className="review-modal-close" onClick={() => setSelectedMember(null)} aria-label="Close member details"><X/></button><div className="member-detail-header"><button className="member-detail-photo" onClick={() => showMemberImage(selectedMember)} aria-label={`View a larger photo of ${selectedMember.fullName}`}><img src={fileUrl(selectedMember.profilePicture)} alt={selectedMember.fullName}/><span><Maximize2/> Enlarge</span></button><div><p className="review-modal-eyebrow">Membership application</p><h2 id="member-detail-title">{selectedMember.fullName}</h2><p>{selectedMember.designation} · {selectedMember.institution}</p><strong className={`status-pill status-${selectedMember.status}`}>{selectedMember.status}</strong></div></div><dl className="member-detail-grid"><div><dt>Email</dt><dd>{selectedMember.email}</dd></div><div><dt>Phone</dt><dd>{selectedMember.phone}</dd></div><div><dt>Country</dt><dd>{selectedMember.country}</dd></div><div><dt>Nationality</dt><dd>{selectedMember.nationality}</dd></div><div><dt>Date of birth</dt><dd>{formatDate(selectedMember.dateOfBirth)}</dd></div><div><dt>Gender</dt><dd>{selectedMember.gender}</dd></div><div className="member-detail-wide"><dt>Address</dt><dd>{selectedMember.address}</dd></div><div className="member-detail-wide"><dt>Research interests</dt><dd>{(selectedMember.interests || []).join(', ') || 'Not provided'}</dd></div><div className="member-detail-wide"><dt>Contribution</dt><dd>{selectedMember.contribution}</dd></div><div><dt>Applied on</dt><dd>{formatDate(selectedMember.createdAt)}</dd></div><div><dt>Curriculum vitae</dt><dd><a href={fileUrl(selectedMember.cv)} target="_blank" rel="noreferrer">Open submitted CV</a></dd></div>{selectedMember.reviewReason && <div className="member-detail-wide"><dt>Current review note</dt><dd>{selectedMember.reviewReason}</dd></div>}</dl></section></div>}
