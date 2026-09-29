@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { ChevronDown, Menu, Search, X } from 'lucide-react';
 
-const links = ['Home'];
+const links = [''];
 
 export default function Header({ light = false }) {
   const [open, setOpen] = useState(false);
@@ -50,15 +50,7 @@ export default function Header({ light = false }) {
               <Link to="/conferences/proceedings" onClick={closeNavigation}>Conference Proceedings</Link>
             </div>
           </div>
-          <div className={`nav-dropdown ${openDropdown === 'membership' ? 'is-expanded' : ''}`}>
-            <button type="button" className="nav-dropdown-trigger" aria-label="Membership pages" aria-haspopup="true" aria-expanded={openDropdown === 'membership'} onClick={() => toggleDropdown('membership')}>
-              Membership <ChevronDown size={15} />
-            </button>
-            <div className="nav-dropdown-menu">
-              <Link to="/membership/network" onClick={closeNavigation}>Membership Network</Link>
-              <Link to="/membership/benefits" onClick={closeNavigation}>Membership Benefits</Link>
-            </div>
-          </div>
+         
           <div className={`nav-dropdown ${openDropdown === 'training' ? 'is-expanded' : ''}`}>
             <button type="button" className="nav-dropdown-trigger" aria-label="Training and Development pages" aria-haspopup="true" aria-expanded={openDropdown === 'training'} onClick={() => toggleDropdown('training')}>
               Training <ChevronDown size={15} />
@@ -86,6 +78,15 @@ export default function Header({ light = false }) {
               <Link to="/resources/fellowship" onClick={closeNavigation}>Fellowships</Link>
               <Link to="/resources/scholarship" onClick={closeNavigation}>Scholarships</Link>
               <Link to="/resources/survey" onClick={closeNavigation}>Survey Form</Link>
+            </div>
+          </div>
+           <div className={`nav-dropdown ${openDropdown === 'membership' ? 'is-expanded' : ''}`}>
+            <button type="button" className="nav-dropdown-trigger" aria-label="Membership pages" aria-haspopup="true" aria-expanded={openDropdown === 'membership'} onClick={() => toggleDropdown('membership')}>
+              Membership <ChevronDown size={15} />
+            </button>
+            <div className="nav-dropdown-menu">
+              <Link to="/membership/network" onClick={closeNavigation}>Membership Network</Link>
+              <Link to="/membership/benefits" onClick={closeNavigation}>Membership Benefits</Link>
             </div>
           </div>
           <a href="/#contact" onClick={closeNavigation}>Contact</a>
