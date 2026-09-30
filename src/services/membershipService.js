@@ -1,8 +1,8 @@
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
-const API_URL = (configuredApiUrl || 'http://localhost:5000/api').replace(/\/$/, '');
+const API_URL = (configuredApiUrl || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api')).replace(/\/$/, '');
 
 export async function getMembers({ signal } = {}) {
-  const response = await fetch(`${API_URL}/memberships`, { signal });
+  const response = await fetch(`${API_URL}/memberships`, { signal, credentials: 'include' });
   if (!response.ok) throw new Error('The member directory could not be loaded. Please try again.');
   const result = await response.json();
   return Array.isArray(result.data) ? result.data : [];
@@ -10,7 +10,7 @@ export async function getMembers({ signal } = {}) {
 
 export function memberPhotoUrl(path) {
   if (!path) return '';
-  const apiOrigin = 'http://asmmr.org'
+  const apiOrigin = new URL(API_URL, window.location.origin).origin;
   return new URL(path.replace(/^\/+/, ''), `${apiOrigin}/`).href;
 }
 export class SubmissionError extends Error {
@@ -30,7 +30,7 @@ export async function submitMembership(payload) {
   });
   let response;
   try {
-    response = await fetch(`${API_URL}/memberships`, { method:'POST', body });
+    response = await fetch(`${API_URL}/memberships`, { method:'POST', body, credentials:'include' });
   } catch {
     throw new SubmissionError('We could not connect while uploading. Check your connection and try again.');
   }
